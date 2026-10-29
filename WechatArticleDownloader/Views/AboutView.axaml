@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:suki="https://github.com/kikipoulet/SukiUI"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1080" d:DesignHeight="660"
+             x:Class="WechatArticleDownloader.Views.AboutView">
+    <Border Margin="10">
+        <Grid ColumnDefinitions="*,2*" RowDefinitions="Auto,*">
+            <suki:GlassCard Grid.Row="0" Grid.ColumnSpan="2" Margin="0 0 0 10">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                        <avalonia:MaterialIcon Kind="CloudDownload" Width="40" Height="40" />
+                        <TextBlock Text="{Binding AppName}" FontSize="22" FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Version}" FontSize="14" Opacity="0.7"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </suki:GlassCard>
+
+            <suki:GlassCard Grid.Row="1" Grid.Column="0" Margin="0 0 10 0">
+                <suki:GroupBox>
+                    <suki:GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <avalonia:MaterialIcon Kind="Information" />
+                            <TextBlock Text="关于本程序" />
+                        </StackPanel>
+                    </suki:GroupBox.Header>
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Description}" />
+                </suki:GroupBox>
+            </suki:GlassCard>
+
+            <suki:GlassCard Grid.Row="1" Grid.Column="1">
+                <suki:GroupBox>
+                    <suki:GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <avalonia:MaterialIcon Kind="Heart" />
+                            <TextBlock Text="技术栈与致谢" />
+                        </StackPanel>
+                    </suki:GroupBox.Header>
+                    <StackPanel Spacing="8">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="• Avalonia 11.3 — 跨平台 .NET UI 框架&#x0a;• SukiUI 6.0 — 玻璃拟态控件库（GlassCard / SukiSideMenu / Toast）&#x0a;• Material.Icons.Avalonia — Material Design 图标&#x0a;• HtmlAgilityPack — 文章 HTML 解析&#x0a;• UI 设计语言借鉴自 SwaggyMacro/LottieViewConvert 项目" />
+                    </StackPanel>
+                </suki:GroupBox>
+            </suki:GlassCard>
+        </Grid>
+    </Border>
+</UserControl>

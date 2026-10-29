@@ -1,0 +1,16 @@
+# IDE 配置
+.idea/
+
+# WorkBuddy 项目内部数据
+.workbuddy/
+
+# 构建产物 (.NET / Avalonia)
+WechatArticleDownloader/bin/
+WechatArticleDownloader/obj/
+WechatArticleDownloader/publish/
+
+# 下载产物（文章/资源）
+downloads/
+
+# 重复：之前下载的仓库 zip 解压副本
+wechatDownload-main/

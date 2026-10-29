@@ -1,0 +1,319 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:suki="https://github.com/kikipoulet/SukiUI"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1080" d:DesignHeight="700"
+             x:Class="WechatArticleDownloader.Views.HomeView">
+
+    <UserControl.Styles>
+        <Style Selector="Border.metaChip">
+            <Setter Property="CornerRadius" Value="11" />
+            <Setter Property="Padding" Value="9 3" />
+            <Setter Property="Background" Value="#1C808080" />
+        </Style>
+        <Style Selector="Border.statCard">
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="14 9" />
+            <Setter Property="Background" Value="#15808080" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#26808080" />
+        </Style>
+        <Style Selector="TextBlock.sectionLabel">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Opacity" Value="0.75" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border Margin="10">
+        <Grid ColumnDefinitions="77*,23*">
+
+            <!-- ================= 主操作卡 ================= -->
+            <suki:GlassCard Grid.Column="0" Margin="0 0 10 0">
+                <suki:GroupBox>
+                    <suki:GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <avalonia:MaterialIcon Kind="CloudDownload" />
+                            <TextBlock Text="粘贴文章链接，一键下载资源" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </suki:GroupBox.Header>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+                        <!-- 链接输入 -->
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <TextBlock Width="68" VerticalAlignment="Center" Text="文章链接" />
+                            <TextBox Grid.Column="1" Margin="8 0 0 0"
+                                     Text="{Binding Url, Mode=TwoWay}"
+                                     Watermark="https://mp.weixin.qq.com/s/..." />
+                            <Button Grid.Column="2" Cursor="Hand" Classes="Flat Rounded"
+                                    Command="{Binding FetchInfoCommand}" Margin="8 0 0 0"
+                                    suki:ButtonExtensions.ShowProgress="{Binding IsLoadingArticle}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:MaterialIcon Kind="Magnify" Width="16" Height="16" />
+                                    <TextBlock Text="获取信息" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- ===== 文章信息卡 ===== -->
+                        <Border Grid.Row="1" Margin="0 12 0 0" IsVisible="{Binding ArticleLoaded}"
+                                CornerRadius="10" Padding="14"
+                                BorderThickness="1" BorderBrush="#2C808080" Background="#12808080">
+                            <Grid ColumnDefinitions="Auto,*">
+
+                                <!-- 封面（无图时露出占位图标） -->
+                                <Border Width="130" Height="130" CornerRadius="8" ClipToBounds="True"
+                                        BorderThickness="1" BorderBrush="#30808080" Margin="0 0 16 0">
+                                    <Grid>
+                                        <avalonia:MaterialIcon Kind="ImageOffOutline" Width="38" Height="38"
+                                                               Opacity="0.35"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                        <Image Source="{Binding CoverImage}" Stretch="UniformToFill" />
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto">
+                                    <!-- 标题 + 原文 -->
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" MaxLines="2"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center" />
+                                        <Button Grid.Column="1" Cursor="Hand" Classes="Basic Rounded"
+                                                Command="{Binding OpenArticleCommand}" Margin="12 0 0 0"
+                                                ToolTip.Tip="在浏览器中打开原文">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <avalonia:MaterialIcon Kind="OpenInNew" Width="14" Height="14" />
+                                                <TextBlock Text="原文" FontSize="12" />
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+
+                                    <!-- 元信息 chips -->
+                                    <WrapPanel Grid.Row="1" Margin="0 9 0 0" ItemWidth="NaN">
+                                        <Border Classes="metaChip" Margin="0 0 8 4">
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <avalonia:MaterialIcon Kind="Account" Width="14" Height="14" Opacity="0.75" />
+                                                <TextBlock Text="{Binding Account}" FontSize="12" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Classes="metaChip" Margin="0 0 8 4">
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <avalonia:MaterialIcon Kind="ClockOutline" Width="14" Height="14" Opacity="0.75" />
+                                                <TextBlock Text="{Binding PublishTime}" FontSize="12" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Classes="metaChip">
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <avalonia:MaterialIcon Kind="LinkVariant" Width="14" Height="14" Opacity="0.75" />
+                                                <TextBlock Text="mp.weixin.qq.com" FontSize="12" />
+                                            </StackPanel>
+                                        </Border>
+                                    </WrapPanel>
+
+                                    <!-- 资源统计 -->
+                                    <Grid Grid.Row="2" ColumnDefinitions="*,*,*" Margin="0 10 0 0">
+                                        <Border Grid.Column="0" Classes="statCard" Margin="0 0 8 0">
+                                            <StackPanel Spacing="1">
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <avalonia:MaterialIcon Kind="Image" Width="15" Height="15" Foreground="#4A9EFF" />
+                                                    <TextBlock Text="图片" FontSize="12" Opacity="0.7" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding ImageCount}" FontSize="21" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="1" Classes="statCard" Margin="0 0 8 0">
+                                            <StackPanel Spacing="1">
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <avalonia:MaterialIcon Kind="PlayCircle" Width="15" Height="15" Foreground="#A66BE0" />
+                                                    <TextBlock Text="视频" FontSize="12" Opacity="0.7" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding VideoCount}" FontSize="21" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="2" Classes="statCard">
+                                            <StackPanel Spacing="1">
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <avalonia:MaterialIcon Kind="MusicNote" Width="15" Height="15" Foreground="#46C08B" />
+                                                    <TextBlock Text="音频" FontSize="12" Opacity="0.7" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding AudioCount}" FontSize="21" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <!-- ===== 抓取中 ===== -->
+                        <Border Grid.Row="1" Margin="0 12 0 0" IsVisible="{Binding IsLoadingArticle}"
+                                CornerRadius="10" Padding="20 26"
+                                BorderThickness="1" BorderBrush="#2C808080" Background="#12808080">
+                            <StackPanel Spacing="10" HorizontalAlignment="Center">
+                                <ProgressBar IsIndeterminate="True" Width="240" Height="4" />
+                                <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" Opacity="0.85" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ===== 空态 ===== -->
+                        <StackPanel Grid.Row="1" Margin="0 12 0 0" MinHeight="152"
+                                    IsVisible="{Binding ShowEmptyState}"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
+                            <avalonia:MaterialIcon Kind="LinkVariantPlus" Width="54" Height="54"
+                                                   HorizontalAlignment="Center" />
+                            <TextBlock Text="粘贴公众号文章链接后点击「获取信息」"
+                                       HorizontalAlignment="Center" Margin="0 12 0 0" />
+                            <TextBlock Text="支持图片 / 视频 / 音频 / 封面"
+                                       HorizontalAlignment="Center" Margin="0 4 0 0"
+                                       FontSize="12" Opacity="0.8" />
+                        </StackPanel>
+
+                        <!-- ===== 下载选项 ===== -->
+                        <StackPanel Grid.Row="2" Margin="0 12 0 0" Spacing="8">
+                            <TextBlock Classes="sectionLabel" Text="下载选项" />
+                            <WrapPanel>
+                                <CheckBox Content="图片" Margin="0 0 14 6" IsChecked="{Binding DownloadImages}" />
+                                <CheckBox Content="视频" Margin="0 0 14 6" IsChecked="{Binding DownloadVideos}" />
+                                <CheckBox Content="音频" Margin="0 0 14 6" IsChecked="{Binding DownloadAudios}" />
+                                <CheckBox Content="封面" Margin="0 0 14 6" IsChecked="{Binding DownloadCover}" />
+                                <CheckBox Content="原图模式" Margin="0 0 14 6" IsChecked="{Binding OriginalImage}" />
+                                <CheckBox Content="保存文章 HTML" Margin="0 0 14 6" IsChecked="{Binding SaveHtml}" />
+                            </WrapPanel>
+                        </StackPanel>
+
+                        <!-- ===== 输出目录 / 并发 ===== -->
+                        <Grid Grid.Row="3" ColumnDefinitions="68,*,Auto,Auto,Auto" Margin="0 6 0 0">
+                            <TextBlock Text="输出目录" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Margin="8 0 0 0"
+                                     Text="{Binding OutputDir, Mode=TwoWay}" IsReadOnly="True" />
+                            <TextBlock Grid.Column="2" Text="并发" VerticalAlignment="Center" Margin="16 0 0 0" />
+                            <NumericUpDown Grid.Column="3" Margin="6 0 0 0" Minimum="1" Maximum="16"
+                                           FormatString="0" Width="78" Value="{Binding Workers}" />
+                            <Button Grid.Column="4" Cursor="Hand" Classes="Basic Rounded"
+                                    Click="BrowseOutputButton_Click" Margin="10 0 0 0"
+                                    ToolTip.Tip="选择下载保存目录">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <avalonia:MaterialIcon Kind="FolderOpen" Width="15" Height="15" />
+                                    <TextBlock Text="浏览" FontSize="12" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- ===== 运行日志 ===== -->
+                        <Grid Grid.Row="4" RowDefinitions="Auto,*" Margin="0 12 0 0" MinHeight="118">
+                            <Grid ColumnDefinitions="*,Auto" Margin="0 0 0 5">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:MaterialIcon Kind="FormatListBulleted" Width="15" Height="15"
+                                                           Opacity="0.7" VerticalAlignment="Center" />
+                                    <TextBlock Classes="sectionLabel" Text="运行日志" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Cursor="Hand" Classes="Basic" Padding="6 2"
+                                        Command="{Binding ClearLogCommand}" ToolTip.Tip="清空日志">
+                                    <avalonia:MaterialIcon Kind="DeleteOutline" Width="14" Height="14" />
+                                </Button>
+                            </Grid>
+                            <Border Grid.Row="1" CornerRadius="6" BorderThickness="1" BorderBrush="#38808080">
+                                <ListBox ItemsSource="{Binding LogLines}"
+                                         FontFamily="Consolas, Microsoft YaHei UI"
+                                         FontSize="11.5"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </Border>
+                        </Grid>
+
+                        <!-- ===== 进度与操作 ===== -->
+                        <Grid Grid.Row="5" RowDefinitions="Auto,Auto" Margin="0 10 0 0">
+                            <ProgressBar Maximum="100" ShowProgressText="False"
+                                         Value="{Binding ProgressValue}" />
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0 8 0 0">
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ProgressText}" Opacity="0.8"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding StatusText}" Opacity="0.5" FontSize="12"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Cursor="Hand" Classes="Basic Rounded"
+                                        Margin="0 0 8 0" Command="{Binding CancelDownloadCommand}"
+                                        IsVisible="{Binding IsDownloading}">
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <avalonia:MaterialIcon Kind="Close" Width="15" Height="15" />
+                                        <TextBlock Text="取消" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="2" Cursor="Hand" Classes="Success Rounded"
+                                        Command="{Binding StartDownloadCommand}"
+                                        suki:ButtonExtensions.ShowProgress="{Binding IsDownloading}">
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <avalonia:MaterialIcon Kind="Download" Width="16" Height="16" />
+                                        <TextBlock Text="开始下载" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </suki:GroupBox>
+            </suki:GlassCard>
+
+            <!-- ================= 右侧说明栏 ================= -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto">
+                <suki:GlassCard Margin="0 0 0 8">
+                    <suki:GroupBox>
+                        <suki:GroupBox.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <avalonia:MaterialIcon Kind="HandBackLeft" />
+                                <TextBlock Text="这是什么？" />
+                            </StackPanel>
+                        </suki:GroupBox.Header>
+                        <TextBlock TextWrapping="Wrap" FontSize="12.5"
+                                   Text="微信公众号文章资源下载工具。粘贴链接即可解析并批量下载文中的图片（含 GIF 动图）、视频、音频与封面，并生成资源清单与可视化报告。" />
+                    </suki:GroupBox>
+                </suki:GlassCard>
+
+                <suki:GlassCard Grid.Row="1" Margin="0 0 0 8">
+                    <suki:GroupBox>
+                        <suki:GroupBox.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <avalonia:MaterialIcon Kind="HelpCircle" />
+                                <TextBlock Text="如何使用？" />
+                            </StackPanel>
+                        </suki:GroupBox.Header>
+                        <StackPanel Spacing="7">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <avalonia:MaterialIcon Kind="Numeric1CircleOutline" Width="16" Height="16" Opacity="0.8" />
+                                <TextBlock Text="复制公众号文章链接" FontSize="12.5" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <avalonia:MaterialIcon Kind="Numeric2CircleOutline" Width="16" Height="16" Opacity="0.8" />
+                                <TextBlock Text="粘贴后点击「获取信息」" FontSize="12.5" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <avalonia:MaterialIcon Kind="Numeric3CircleOutline" Width="16" Height="16" Opacity="0.8" />
+                                <TextBlock Text="确认资源统计，开始下载" FontSize="12.5" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <avalonia:MaterialIcon Kind="Numeric4CircleOutline" Width="16" Height="16" Opacity="0.8" />
+                                <TextBlock Text="在「下载记录」页查看报告" FontSize="12.5" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </StackPanel>
+                    </suki:GroupBox>
+                </suki:GlassCard>
+
+                <suki:GlassCard Grid.Row="2">
+                    <suki:GroupBox>
+                        <suki:GroupBox.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <avalonia:MaterialIcon Kind="Lightbulb" />
+                                <TextBlock Text="小贴士" />
+                            </StackPanel>
+                        </suki:GroupBox.Header>
+                        <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.85"
+                                   Text="原图模式会尝试下载原始尺寸图片，体积更大，失败时自动回退普通图。文章链接有效期有限，失效时请重新从微信客户端复制。" />
+                    </suki:GroupBox>
+                </suki:GlassCard>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
